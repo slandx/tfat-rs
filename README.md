@@ -1,7 +1,7 @@
 # tfat
 Two factor authentication(2FA) command line tool. 
 
-Written with `Rust` for learning programming language, see `Go` version [here]().
+Written with `Rust` for learning programming language, see `Go` version [here](https://github.com/slandx/tfat).
 
 ## Features
 - Save config file with AES-GCM encrypt
