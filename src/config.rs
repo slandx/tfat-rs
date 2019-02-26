@@ -1,6 +1,7 @@
 use dirs;
 use error::{Error, Result};
-use ring::{aead, digest};
+use kdf_util;
+use ring::aead;
 use ring::rand::{SecureRandom, SystemRandom};
 use rpassword;
 use std::collections::HashMap;
@@ -78,9 +79,9 @@ pub fn read_from_file() -> Result<Config> {
             &nonce
         }
     });
-
-    let open_key = aead::OpeningKey::new(&aead::AES_256_GCM,
-                                         digest::digest(&digest::SHA256, cfg.pwd.as_slice()).as_ref()).unwrap();
+    // create AES-GCM open key derived with argon2
+    let derived_key = kdf_util::derive_key(cfg.pwd.as_slice(), &nonce, aead::AES_256_GCM.key_len() as u32)?;
+    let open_key = aead::OpeningKey::new(&aead::AES_256_GCM, derived_key.as_slice()).unwrap();
 
     let mut in_out = vec![0; cfg_buf.len() - encrypted_pos];
     in_out.copy_from_slice(&cfg_buf[encrypted_pos..]);
@@ -120,9 +121,9 @@ pub fn save_to_file(cfg: &Config) -> Result<bool> {
         PwdType::UserPwd => cfg.pwd.as_slice(),
         PwdType::DefaultPwd => &nonce
     };
-    // create AES-GCM seal key
-    let seal_key = aead::SealingKey::new(&aead::AES_256_GCM,
-                                         digest::digest(&digest::SHA256, password).as_ref()).unwrap();
+    // create AES-GCM seal key derived with argon2
+    let derived_key = kdf_util::derive_key(password, &nonce, aead::AES_256_GCM.key_len() as u32)?;
+    let seal_key = aead::SealingKey::new(&aead::AES_256_GCM, derived_key.as_slice()).unwrap();
     aead::seal_in_place(&seal_key, aead::Nonce::assume_unique_for_key(nonce),
                         aead::Aad::empty(), &mut in_out, aead::AES_256_GCM.tag_len()).unwrap();
 

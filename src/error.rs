@@ -50,4 +50,3 @@ impl From<ser::Error> for Error {
         Error::TomlSerialize(err)
     }
 }
-

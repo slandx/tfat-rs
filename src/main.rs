@@ -1,3 +1,4 @@
+extern crate argon2;
 #[macro_use]
 extern crate clap;
 extern crate clipboard;
@@ -15,6 +16,7 @@ use clap::App;
 
 mod error;
 mod cmd;
+mod kdf_util;
 mod config;
 mod totp;
 
