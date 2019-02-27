@@ -78,6 +78,9 @@ pub fn read_from_file() -> Result<Config> {
         PwdType::DefaultPwd => {
             &nonce
         }
+        _=> {
+            return Err(Error::InvalidDataFile);
+        }
     });
     // create AES-GCM open key derived with argon2
     let derived_key = kdf_util::derive_key(cfg.pwd.as_slice(), &nonce, aead::AES_256_GCM.key_len() as u32)?;
