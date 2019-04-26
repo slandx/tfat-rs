@@ -4,7 +4,7 @@ use std::{thread, time};
 use std::io::{self, Write};
 use totp::TOTP;
 
-pub fn run() {
+pub fn run(in_loop: bool) {
     let cfg = match config::read_from_file() {
         Ok(cfg) => cfg,
         Err(err) => {
@@ -57,6 +57,10 @@ pub fn run() {
                             ctx.set_contents(code.to_owned()).unwrap();
                         }
                         print!("\r{:06} (remain {}s) ", code, remain);
+                        if !in_loop {
+                            println!();
+                            break;
+                        }
                         io::stdout().flush().unwrap();
                         thread::sleep(time::Duration::from_secs(1));
                     }

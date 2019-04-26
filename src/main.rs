@@ -12,7 +12,7 @@ extern crate rpassword;
 extern crate serde_derive;
 extern crate toml;
 
-use clap::App;
+use clap::{App, Arg};
 
 mod error;
 mod cmd;
@@ -24,6 +24,10 @@ fn main() {
     let matches = App::new(crate_name!())
         .about(crate_description!())
         .version(crate_version!())
+        .arg(Arg::with_name("loop")
+            .short("l")
+            .long("loop")
+            .help("Generate code in loop"))
         .subcommand(cmd::add::subcommand())
         .subcommand(cmd::delete::subcommand())
         .subcommand(cmd::password::subcommand())
@@ -33,6 +37,6 @@ fn main() {
         ("add", Some(sub_m)) => cmd::add::run(&sub_m),
         ("delete", Some(sub_m)) => cmd::delete::run(&sub_m),
         ("password", Some(_)) => cmd::password::run(),
-        _ => cmd::view::run(),
+        _ => cmd::view::run(matches.occurrences_of("loop") > 0),
     }
 }
